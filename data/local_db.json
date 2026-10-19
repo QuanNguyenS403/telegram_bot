@@ -1,0 +1,826 @@
+{
+  "tracked_targets": [
+    {
+      "id": 1,
+      "type": "shopify",
+      "name": "Eberjey",
+      "url": "https://eberjey.com/products.json?limit=5",
+      "is_active": true,
+      "created_at": "2026-10-19T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "type": "shopify",
+      "name": "Cozy Earth",
+      "url": "https://cozyearth.com/products.json?limit=5",
+      "is_active": true,
+      "created_at": "2026-10-19T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "type": "shopify",
+      "name": "PJ Salvage",
+      "url": "https://pjsalvage.com/products.json?limit=5",
+      "is_active": true,
+      "created_at": "2026-10-19T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "type": "meta_ads",
+      "name": "Meta Ads: Sleepwear US",
+      "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=sleepwear&search_type=keyword_unordered",
+      "is_active": true,
+      "created_at": "2026-10-19T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "type": "meta_ads",
+      "name": "Meta Ads: Silk Pajamas US",
+      "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=%22silk%20pajamas%22&search_type=keyword_exact_phrase",
+      "is_active": true,
+      "created_at": "2026-10-19T00:00:00.000Z"
+    }
+  ],
+  "scraped_items": [
+    {
+      "source": "shopify",
+      "external_id": "shopify_8118960554164",
+      "brand": "Cozy Earth",
+      "title": "Monthly",
+      "raw_data": {
+        "brand": "Cozy Earth",
+        "sourceType": "shopify",
+        "title": "Monthly",
+        "type": "membership",
+        "tags": [
+          "inveterate-product",
+          "Rivo Membership",
+          "Rivo Membership Tier: Monthly"
+        ],
+        "price": "10.00",
+        "description": "",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/2114/3697/files/Membership_Card.jpg?v=1791986599",
+        "productUrl": "https://cozyearth.com/products/monthly"
+      },
+      "created_at": "2026-10-19T06:17:59.331Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_8118960619700",
+      "brand": "Cozy Earth",
+      "title": "Annual",
+      "raw_data": {
+        "brand": "Cozy Earth",
+        "sourceType": "shopify",
+        "title": "Annual",
+        "type": "membership",
+        "tags": [
+          "inveterate-product",
+          "Rivo Membership",
+          "Rivo Membership Tier: Annual"
+        ],
+        "price": "100.00",
+        "description": "",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/2114/3697/files/Membership_Card.jpg?v=1791986599",
+        "productUrl": "https://cozyearth.com/products/annual"
+      },
+      "created_at": "2026-10-19T06:17:59.591Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_15399470071988",
+      "brand": "Cozy Earth",
+      "title": "Rivo Flow Test – Do Not Purchase",
+      "raw_data": {
+        "brand": "Cozy Earth",
+        "sourceType": "shopify",
+        "title": "Rivo Flow Test – Do Not Purchase",
+        "type": "N/A",
+        "tags": [
+          "rivo-test"
+        ],
+        "price": "1.00",
+        "description": "",
+        "imageUrl": null,
+        "productUrl": "https://cozyearth.com/products/rivo-flow-test-do-not-purchase"
+      },
+      "created_at": "2026-10-19T06:17:59.884Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_8117022752948",
+      "brand": "Cozy Earth",
+      "title": "Gift Wrapping",
+      "raw_data": {
+        "brand": "Cozy Earth",
+        "sourceType": "shopify",
+        "title": "Gift Wrapping",
+        "type": "N/A",
+        "tags": [],
+        "price": "15.00",
+        "description": "",
+        "imageUrl": null,
+        "productUrl": "https://cozyearth.com/products/gift-wrapping"
+      },
+      "created_at": "2026-10-19T06:18:00.196Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_8116336918708",
+      "brand": "Cozy Earth",
+      "title": "Women's Liv Biker Short 6\" with Pockets",
+      "raw_data": {
+        "brand": "Cozy Earth",
+        "sourceType": "shopify",
+        "title": "Women's Liv Biker Short 6\" with Pockets",
+        "type": "N/A",
+        "tags": [
+          "bottoms",
+          "eligible",
+          "loungewear",
+          "new",
+          "oeko-tex certified",
+          "women"
+        ],
+        "price": "68.00",
+        "description": "Made for the cafe run, the post-pilates walk, and every easy errand in between, the Liv Biker Short is the piece you reach for when the day calls for comfortable movement without the fuss. A stretchy blend of 68% nylon and 32% spandex moves with you and stays fully opaque, so you can bend, reach, an",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/2114/3697/files/Liv_Biker_Short_6_with_Pockets_Uniform_1.jpg?v=1791317512",
+        "productUrl": "https://cozyearth.com/products/womens-liv-biker-short-6-with-pockets"
+      },
+      "created_at": "2026-10-19T06:18:00.568Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_14767296414060",
+      "brand": "PJ Salvage",
+      "title": "Faux Fur Leopard Print Slippers",
+      "raw_data": {
+        "brand": "PJ Salvage",
+        "sourceType": "shopify",
+        "title": "Faux Fur Leopard Print Slippers",
+        "type": "Slippers",
+        "tags": [
+          "Accessories",
+          "All Prints",
+          "Animal print",
+          "BRAIDED FAUX FUR SLIDES",
+          "Carryover SKU",
+          "color_Beige",
+          "Ecom Buy",
+          "FA25",
+          "FA25 SEPT",
+          "FA26",
+          "FA26 AUG",
+          "Faux Fur Jackets",
+          "Feel Good February Sale 2026",
+          "Footwear",
+          "Gift Guide",
+          "Has Alt Text",
+          "Leopard",
+          "Memorial Day 2026",
+          "Shop All",
+          "shoprunner",
+          "SIBLINGS_NONE",
+          "SKU_RUFBSL1",
+          "Slippers",
+          "Stocking Stuffer",
+          "SWATCH_ASSIGNED",
+          "YGroup_slippers_polyester"
+        ],
+        "price": "48.00",
+        "description": "Feline and frisky for the win. Crafted from faux fur in a leopard pattern with crisscross straps and cushy rubber soles, these plush slippers are perfect for lounging around the house in style.",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0079/9054/2436/files/RUFBSL1_CARAMEL_6.jpg?v=1784260319",
+        "productUrl": "https://pjsalvage.com/products/faux-fur-leopard-print-fuzzy-slippers"
+      },
+      "created_at": "2026-10-19T06:18:01.665Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_15296374669676",
+      "brand": "PJ Salvage",
+      "title": "Weekday Waffles Honey Charcoal Lounge Pants",
+      "raw_data": {
+        "brand": "PJ Salvage",
+        "sourceType": "shopify",
+        "title": "Weekday Waffles Honey Charcoal Lounge Pants",
+        "type": "Open Leg Pants",
+        "tags": [
+          "ATS Style",
+          "Back to Campus",
+          "Bottoms",
+          "color_Grey",
+          "Cotton",
+          "EVERY DAY - WEEKDAY WAFFLES",
+          "FA26",
+          "FA26 OCT",
+          "Fall favorites",
+          "Gift Guide",
+          "Has Alt Text",
+          "Loungewear",
+          "Luxe Lounge",
+          "Moderate Temp",
+          "New Arrival",
+          "Open Leg Pants",
+          "Shop All",
+          "SIBLINGS_NONE",
+          "SKU_RZEDHP",
+          "Stripes",
+          "SWATCH_ASSIGNED",
+          "Thermal",
+          "Under 100",
+          "Waffle",
+          "YGroup_openlegpants_waffle"
+        ],
+        "price": "90.00",
+        "description": "Sporty meets chic. Designed for everyday life, these heather charcoal lounge pants offer the perfect blend of relaxed comfort and effortless style. Crafted from soft waffle thermal with a drapey fit and a touch of stretch, they’re an easy choice for lounging, running errands, and seeing where the we",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0079/9054/2436/files/RZEDHP_HDARKCHARCOAL_2.jpg?v=1789664262",
+        "productUrl": "https://pjsalvage.com/products/waffle-knit-honey-lounge-pants-charcoal-weekday-waffles"
+      },
+      "created_at": "2026-10-19T06:18:02.002Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_15296374636908",
+      "brand": "PJ Salvage",
+      "title": "Weekday Waffles Deep Dive Dark Green Long Sleeve Top",
+      "raw_data": {
+        "brand": "PJ Salvage",
+        "sourceType": "shopify",
+        "title": "Weekday Waffles Deep Dive Dark Green Long Sleeve Top",
+        "type": "Long Sleeve Top",
+        "tags": [
+          "Back to Campus",
+          "color_Green",
+          "Cotton",
+          "Ecom Buy",
+          "EVERY DAY - WEEKDAY WAFFLES",
+          "FA26",
+          "FA26 OCT",
+          "Fall favorites",
+          "Gift Guide",
+          "Has Alt Text",
+          "Long Sleeve Tops",
+          "Loungewear",
+          "Luxe Lounge",
+          "Moderate Temp",
+          "New Arrival",
+          "Shop All",
+          "SIBLINGS_ASSIGNED",
+          "SKU_RZEDDDS",
+          "SWATCH_ASSIGNED",
+          "Sweaters",
+          "Thermal",
+          "Tops",
+          "Under 100",
+          "Waffle",
+          "YGroup_longsleeve_waffle"
+        ],
+        "price": "72.00",
+        "description": "An everyday basic with a soft, textured feel. Crafted from waffle thermal in a dark green hue, this long-sleeve top is perfect for year-round wear. With a comfy feel and a touch of stretch, it’s an easy choice for lounging, running errands, and seeing where the weekend takes you.",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0079/9054/2436/files/RZEDDDS_DARKPINE_1.jpg?v=1789664243",
+        "productUrl": "https://pjsalvage.com/products/waffle-knit-deep-dive-v-neck-long-sleeve-top-dark-pine-weekday-waffles"
+      },
+      "created_at": "2026-10-19T06:18:02.286Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_15296374604140",
+      "brand": "PJ Salvage",
+      "title": "Weekday Waffles Deep Dive Charcoal Long Sleeve Top",
+      "raw_data": {
+        "brand": "PJ Salvage",
+        "sourceType": "shopify",
+        "title": "Weekday Waffles Deep Dive Charcoal Long Sleeve Top",
+        "type": "Long Sleeve Top",
+        "tags": [
+          "ATS Style",
+          "Back to Campus",
+          "color_Grey",
+          "Cotton",
+          "EVERY DAY - WEEKDAY WAFFLES",
+          "FA26",
+          "FA26 OCT",
+          "Fall favorites",
+          "Gift Guide",
+          "Has Alt Text",
+          "Long Sleeve Tops",
+          "Loungewear",
+          "Luxe Lounge",
+          "Moderate Temp",
+          "New Arrival",
+          "Shop All",
+          "SIBLINGS_ASSIGNED",
+          "SKU_RZEDDDS",
+          "SWATCH_ASSIGNED",
+          "Sweaters",
+          "Thermal",
+          "Tops",
+          "Under 100",
+          "Waffle",
+          "YGroup_longsleeve_waffle"
+        ],
+        "price": "72.00",
+        "description": "A lounge basic that’s anything but basic. Crafted from soft waffle thermal in a heather charcoal hue, this long-sleeve top is perfect for year-round wear. With a comfy feel and a touch of stretch, it’s an easy choice for lounging, running errands, and seeing where the weekend takes you.",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0079/9054/2436/files/RZEDDDS_HDARKCHARCOAL_1.jpg?v=1789664261",
+        "productUrl": "https://pjsalvage.com/products/waffle-knit-deep-dive-v-neck-long-sleeve-top-charcoal-weekday-waffles"
+      },
+      "created_at": "2026-10-19T06:18:02.725Z"
+    },
+    {
+      "source": "shopify",
+      "external_id": "shopify_15296376209772",
+      "brand": "PJ Salvage",
+      "title": "Nature Is My Therapy Runway Lounge Pants",
+      "raw_data": {
+        "brand": "PJ Salvage",
+        "sourceType": "shopify",
+        "title": "Nature Is My Therapy Runway Lounge Pants",
+        "type": "Open Leg Pants",
+        "tags": [
+          "Back to Campus",
+          "Bottoms",
+          "color_Grey",
+          "Ecom Buy",
+          "FA26",
+          "FA26 OCT",
+          "Fall favorites",
+          "Gift Guide",
+          "Has Alt Text",
+          "Loungewear",
+          "Moderate Temp",
+          "NATURE IS MY THERAPY - Mid Flight Essentials",
+          "New Arrival",
+          "Open Leg Pants",
+          "pfs:label-Has Pockets",
+          "Rayon",
+          "Shop All",
+          "SIBLINGS_NONE",
+          "SKU_RZNTRP",
+          "Solid",
+          "SWATCH_ASSIGNED",
+          "True Loungewear",
+          "Under 100",
+          "YGroup_loungewear_pants_runway"
+        ],
+        "price": "98.00",
+        "description": "A lounge essential you’ll want to live in. Crafted from a super-soft viscose blend, these heather charcoal pants blend the comfy feel of sweats with elevated design details that make them extra special. Made for everyday life on the go, they’re the perfect pants for long-haul flights, late nights, a",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0079/9054/2436/files/RZNTRP_HDARKCHARCOAL_1.jpg?v=1789664239",
+        "productUrl": "https://pjsalvage.com/products/mid-flight-essential-charcoal-runway-lounge-pants-nature-is-my-therapy"
+      },
+      "created_at": "2026-10-19T06:18:02.989Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1970497433855645",
+      "brand": "Petite Plume: Luxury Sleepwear",
+      "title": "{{product.brand}}",
+      "raw_data": {
+        "brand": "Petite Plume: Luxury Sleepwear",
+        "adId": "1970497433855645",
+        "startDate": "2026-04-27T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "{{product.brand}}",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:17.438Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1389131416531872",
+      "brand": "SilkSilky Pajamas",
+      "title": "✨ MEGA SALE IS HERE — 50% OFF!\n\nYour favorite silk pajamas are finally on sale.\n",
+      "raw_data": {
+        "brand": "SilkSilky Pajamas",
+        "adId": "1389131416531872",
+        "startDate": "2026-09-19T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "WHATSAPP",
+          "THREADS"
+        ],
+        "bodyText": "✨ MEGA SALE IS HERE — 50% OFF!\n\nYour favorite silk pajamas are finally on sale.\n\n💎 100% Grade 6A Mulberry Silk\n☁️ Ultra-soft & lightweight\n🌙 Breathable & temperature-regulating\n🌀 Machine washable\n\nLuxury sleepwear without the luxury price tag.\n\n⏰ Limited time only — shop now!",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:17.788Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_931133199433355",
+      "brand": "SilkSilky Pajamas",
+      "title": "✨ MEGA SALE IS HERE — 50% OFF!\nYour favorite silk pajamas are finally on sale.\n\ud83d",
+      "raw_data": {
+        "brand": "SilkSilky Pajamas",
+        "adId": "931133199433355",
+        "startDate": "2026-09-01T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "✨ MEGA SALE IS HERE — 50% OFF!\nYour favorite silk pajamas are finally on sale.\n💎 100% Grade 6A Mulberry Silk\n☁️ Ultra-soft & lightweight\n🌙 Breathable & temperature-regulating\n🌀 Machine washable\nLuxury sleepwear without the luxury price tag.\n⏰ Limited time only — shop now!",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:18.167Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1538545167957057",
+      "brand": "SilkSilky",
+      "title": "POV: You finally tried real silk pajamas. 👀\n\n☁️ Softer\n🌙 Cooler\n✨ More comfort",
+      "raw_data": {
+        "brand": "SilkSilky",
+        "adId": "1538545167957057",
+        "startDate": "2026-09-05T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "POV: You finally tried real silk pajamas. 👀\n\n☁️ Softer\n🌙 Cooler\n✨ More comfortable\n\nAnd yes — they're machine washable.\n\n💎 100% Grade 6A Mulberry Silk\n\n🔥 50% OFF Mega Sale\n\nYour old pajamas don't stand a chance.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Video",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:18.820Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_2651200741978600",
+      "brand": "Wyatt Perry",
+      "title": "After a painful divorce leaves Lucas Greco broke and betrayed, he answers an unu",
+      "raw_data": {
+        "brand": "Wyatt Perry",
+        "adId": "2651200741978600",
+        "startDate": "2026-09-29T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "THREADS"
+        ],
+        "bodyText": "After a painful divorce leaves Lucas Greco broke and betrayed, he answers an unusual ad seeking a stepfather for a child. The job leads him into the powerful Corleone family and brings him face-to-face with Serafina, a feared Mafia Donna. Her young son Marco distrusts every man around him, but Lucas patiently enters the boy’s world through kindness, play, and care. What begins as a practical arran",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Video",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:19.267Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1342192207861561",
+      "brand": "Silksilky_de",
+      "title": "Luxury You'll Actually Use\n\nSome luxuries sit on a shelf.\n\nSilk pajamas get worn",
+      "raw_data": {
+        "brand": "Silksilky_de",
+        "adId": "1342192207861561",
+        "startDate": "2026-06-30T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "Luxury You'll Actually Use\n\nSome luxuries sit on a shelf.\n\nSilk pajamas get worn every night.\n\n✔️ 100% Mulberry Silk\n✔️ Machine Washable\n✔️ Naturally Thermoregulating\n\n🔥 50% OFF Today\n\nComfort worth investing in.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Video",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:19.587Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1775472706782283",
+      "brand": "SilkSilky",
+      "title": "The luckiest is to meet your Mr. Right or Miss Right and spend a beautiful night",
+      "raw_data": {
+        "brand": "SilkSilky",
+        "adId": "1775472706782283",
+        "startDate": "2026-08-12T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "The luckiest is to meet your Mr. Right or Miss Right and spend a beautiful night together. Just enjoy every morning and evening with him or her in our luxurious, buttery soft and super affordable silk pajamas.\nSILKSILKY Clearance sale going on✨It's possible to buy 100% mulberry silk pajamas for half price💥Discounts are available for a limited time while stocks last ⚡️. \nAll the best-selling style",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:19.902Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_2164073947713637",
+      "brand": "Meowvo",
+      "title": "Remove loose undercoat before it ends up on your clothes or furniture.",
+      "raw_data": {
+        "brand": "Meowvo",
+        "adId": "2164073947713637",
+        "startDate": "2026-05-23T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "bodyText": "Remove loose undercoat before it ends up on your clothes or furniture.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Video",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:20.379Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_940821489101900",
+      "brand": "Wyatt Perry",
+      "title": "After a painful divorce leaves Lucas Greco broke and betrayed, he answers an unu",
+      "raw_data": {
+        "brand": "Wyatt Perry",
+        "adId": "940821489101900",
+        "startDate": "2026-09-29T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "THREADS"
+        ],
+        "bodyText": "After a painful divorce leaves Lucas Greco broke and betrayed, he answers an unusual ad seeking a stepfather for a child. The job leads him into the powerful Corleone family and brings him face-to-face with Serafina, a feared Mafia Donna. Her young son Marco distrusts every man around him, but Lucas patiently enters the boy’s world through kindness, play, and care. What begins as a practical arran",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Video",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:20.860Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1973445336663962",
+      "brand": "Olivia von Halle",
+      "title": "Savor those behind-the-scenes moments in timeless luxury with the world’s finest",
+      "raw_data": {
+        "brand": "Olivia von Halle",
+        "adId": "1973445336663962",
+        "startDate": "2026-10-01T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "THREADS"
+        ],
+        "bodyText": "Savor those behind-the-scenes moments in timeless luxury with the world’s finest silk pajamas.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:21.368Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1720316499170944",
+      "brand": "SHEIN",
+      "title": "Fashion for All: Discover quality clothing for every occasion.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1720316499170944",
+        "startDate": "2026-08-04T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK"
+        ],
+        "bodyText": "Fashion for All: Discover quality clothing for every occasion.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:21.614Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_883774287723127",
+      "brand": "SHEIN",
+      "title": "Fashion for All: Discover quality clothing for every occasion.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "883774287723127",
+        "startDate": "2026-07-29T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK"
+        ],
+        "bodyText": "Fashion for All: Discover quality clothing for every occasion.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:22.018Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1960569967909331",
+      "brand": "SHEIN",
+      "title": "Fashion for All: Discover quality clothing for every occasion.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1960569967909331",
+        "startDate": "2026-06-25T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK"
+        ],
+        "bodyText": "Fashion for All: Discover quality clothing for every occasion.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:22.846Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1080745761191959",
+      "brand": "SHEIN",
+      "title": "Fashion for All: Discover quality clothing for every occasion.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1080745761191959",
+        "startDate": "2026-08-04T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "bodyText": "Fashion for All: Discover quality clothing for every occasion.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:23.234Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1566313051557985",
+      "brand": "SHEIN",
+      "title": "Become a fashionista!\nRefresh your wardrobe right now\nCatch the deals before the",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1566313051557985",
+        "startDate": "2026-07-05T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK"
+        ],
+        "bodyText": "Become a fashionista!\nRefresh your wardrobe right now\nCatch the deals before they're gone",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:23.698Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1277128067690893",
+      "brand": "SHEIN",
+      "title": "Stay stylish with our ever-evolving fashion line. Shop SHEIN now.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1277128067690893",
+        "startDate": "2026-08-04T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "bodyText": "Stay stylish with our ever-evolving fashion line. Shop SHEIN now.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:24.108Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_3512709455583952",
+      "brand": "SHEIN",
+      "title": "Become a fashionista. Refresh your wardrobe right now",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "3512709455583952",
+        "startDate": "2026-08-06T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "THREADS"
+        ],
+        "bodyText": "Become a fashionista. Refresh your wardrobe right now",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:24.541Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_2035867563709063",
+      "brand": "SHEIN",
+      "title": "Fashion for All: Discover quality clothing for every occasion.",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "2035867563709063",
+        "startDate": "2026-08-04T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "bodyText": "Fashion for All: Discover quality clothing for every occasion.",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:24.883Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1738073747459448",
+      "brand": "SHEIN",
+      "title": "Today's hot deals\nExplore our chic picks now\nGet more surprises from SHEIN",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1738073747459448",
+        "startDate": "2026-08-25T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK"
+        ],
+        "bodyText": "Today's hot deals\nExplore our chic picks now\nGet more surprises from SHEIN",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:25.207Z"
+    },
+    {
+      "source": "fb_ads",
+      "external_id": "fb_ad_1546521747008797",
+      "brand": "SHEIN",
+      "title": "Explore the fashion universe. Get new styles every day on SHEIN",
+      "raw_data": {
+        "brand": "SHEIN",
+        "adId": "1546521747008797",
+        "startDate": "2026-07-06T07:00:00.000Z",
+        "platforms": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "bodyText": "Explore the fashion universe. Get new styles every day on SHEIN",
+        "ctaText": "N/A",
+        "linkUrl": "",
+        "mediaType": "Image/Carousel",
+        "imageUrl": null
+      },
+      "created_at": "2026-10-19T06:18:25.520Z"
+    }
+  ]
+}
