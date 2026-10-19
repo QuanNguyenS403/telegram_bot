@@ -60,10 +60,13 @@ async function scrapeWebsites() {
             title: item.title,
             type: item.product_type || 'N/A',
             tags: item.tags || [],
+            variants: item.variants || [],
             price: item.variants?.[0]?.price || 'N/A',
             description: item.body_html ? item.body_html.replace(/<[^>]*>?/gm, '').slice(0, 300) : '',
             imageUrl: item.images?.[0]?.src || null,
-            productUrl: item.handle ? `${baseDomain}/products/${item.handle}` : baseDomain
+            productUrl: item.handle ? `${baseDomain}/products/${item.handle}` : baseDomain,
+            createdAt: item.created_at,
+            updatedAt: item.updated_at
           };
 
           newProducts.push(cleanItem);
@@ -388,10 +391,23 @@ async function scrapeMetaAds() {
           null;
 
         const body = ad.snapshot?.body?.text || 'Không có caption';
+        const rawStartDate = ad.startDateFormatted || ad.startDate || ad.ad_delivery_start_time || null;
+        let daysRunning = 0;
+        if (rawStartDate) {
+          const start = new Date(rawStartDate);
+          if (!isNaN(start.getTime())) {
+            daysRunning = Math.max(0, Math.floor((new Date() - start) / (1000 * 60 * 60 * 24)));
+          }
+        }
+        const variantsCount = (ad.snapshot?.cards?.length || 0) + (ad.snapshot?.videos?.length || 0) + (ad.snapshot?.images?.length || 1);
+
         const cleanAd = {
           brand: ad.pageName || 'Unknown Brand',
+          title: `Meta Ad (${ad.pageName || 'Đối thủ'}) - ${body.slice(0, 50)}...`,
           adId: adArchiveId,
-          startDate: ad.startDateFormatted || ad.startDate || 'N/A',
+          startDate: rawStartDate || 'N/A',
+          daysRunning: daysRunning,
+          variantsCount: variantsCount,
           platforms: ad.publisherPlatform || ['facebook', 'instagram'],
           bodyText: body.slice(0, 400),
           ctaText: ad.snapshot?.cta_text || 'N/A',

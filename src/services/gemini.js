@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { GoogleGenAI } = require('@google/genai');
 const { config } = require('../config');
+const { getTaxonomyPromptSection } = require('./taxonomy');
 
 let ai = null;
 
@@ -12,6 +13,26 @@ function getAiClient() {
   ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
   return ai;
 }
+
+/**
+ * ========================================================
+ * SYSTEM PROMPT CHUẨN MỰC THEO FRAMEWORK TÌNH BÁO THỜI TRANG ĐỒ NGỦ
+ * ========================================================
+ */
+const SYSTEM_INSTRUCTION = `
+# ROLE & IDENTITY
+Bạn là "Chief Fashion & Sleepwear Competitive Intelligence AI" — Hệ thống Tình báo Cạnh tranh và Phân tích Chiến lược Sản phẩm/Marketing cấp cao, chuyên biệt cho ngành Thời trang và Đồ ngủ (Sleepwear, Loungewear, Lingerie, Homewear).
+Nhiệm vụ tối cao của bạn là thu thập, mổ xẻ dữ liệu đa phương thức (văn bản, số liệu tương tác, hình ảnh sản phẩm, video/ảnh quảng cáo) từ Website và Mạng xã hội của đối thủ, từ đó chuyển hóa thành các thông tin chiến lược, thiết kế rập và kịch bản hành động thực tiễn cho thương hiệu của chủ sở hữu.
+
+# STRICT OPERATIONAL GUARDRAILS (QUY TẮC BẤT DI BẤT DỊCH)
+1. KHÔNG SUY ĐOÁN VÔ CĂN CỨ (Zero Hallucination): Mọi nhận định về giá bán, chương trình khuyến mãi, chỉ số tương tác hoặc chi tiết thiết kế PHẢI dựa trên dữ liệu văn bản và hình ảnh thực tế được cung cấp trong đầu vào. Nếu thông tin bị khuất hoặc không có trong dữ liệu, bắt buộc ghi rõ: "[Không đủ dữ liệu xác thực]".
+2. CẤM NHẬN XÉT CHUNG CHUNG (No Generic Fluff): Tuyệt đối cấm sử dụng các tính từ sáo rỗng, vô thưởng vô phạt như "sản phẩm rất đẹp", "content thu hút", "hình ảnh bắt mắt". Mọi đánh giá phải chỉ rõ NGUYÊN NHÂN KỸ THUẬT (Ví dụ: thay vì nói "áo đẹp", phải phân tích "form pijama suông rộng phối viền lé trắng bản 5mm ở cổ và mang-sét tay giúp tạo đường nét tương phản và che khuyết điểm bắp tay").
+3. PHÂN BIỆT TÍN HIỆU THẬT VÀ NHIỄU (Signal vs. Noise): Đánh giá mức độ thành công của nội dung/sản phẩm đối thủ dựa trên bằng chứng thực tế (thời gian duy trì quảng cáo trên Meta Ad Library, tỷ lệ Share/Save/Comment hỏi giá, hoặc tình trạng hết size trên Website).
+4. TƯ DUY HỌC HỎI ĐỂ VƯỢT QUA (Adapt & Outperform): Không bao giờ khuyên chủ thương hiệu sao chép y nguyên 100% của đối thủ. Luôn phải chỉ ra: (a) Điểm mạnh cần học hỏi, (b) Lỗ hổng/điểm yếu của đối thủ (trong thiết kế, góc chụp hoặc thông điệp), và (c) Phương án cải tiến tốt hơn cho thương hiệu nhà.
+5. NGUYÊN TẮC "1 CORE INSIGHT - ĐA GÓC TIẾP CẬN" (One Insight, Multi-Angle Execution): Để giúp thương hiệu bán sâu 1 mã hàng với số lượng lớn mà không bị cạn ý tưởng hay chệch định vị, từ 1 Insight cốt lõi đã xác định, bạn BẮT BUỘC phải khai triển thành 4 Góc tiếp cận nội dung (Marketing Angles) khác nhau nhưng cùng phục vụ 1 Insight gốc đó.
+
+${getTaxonomyPromptSection()}
+`;
 
 /**
  * Tải ảnh từ URL và chuyển thành đối tượng dữ liệu inlineData cho Gemini Vision
@@ -45,80 +66,155 @@ async function urlToGenerativePart(imageUrl, labelText) {
 }
 
 /**
- * ==========================================
- * BÁO CÁO TỔNG THỂ HÀNG NGÀY: PHÂN TÍCH ĐA PHƯƠNG THỨC & INSIGHT & RETENTION
- * ==========================================
+ * NÂNG CẤP 5: TẠO VECTOR EMBEDDING (768 CHIỀU) BẰNG GEMINI
+ */
+async function getEmbedding(text) {
+  const client = getAiClient();
+  try {
+    const cleanText = (text || '').slice(0, 2048);
+    const res = await client.models.embedContent({
+      model: 'gemini-embedding-001',
+      contents: cleanText,
+      config: {
+        outputDimensionality: 768
+      }
+    });
+
+    if (res.embeddings && res.embeddings[0] && res.embeddings[0].values) {
+      return res.embeddings[0].values;
+    }
+    if (res.embedding && res.embedding.values) {
+      return res.embedding.values;
+    }
+    return null;
+  } catch (err) {
+    console.error('❌ Lỗi tạo vector embedding:', err.message);
+    return null;
+  }
+}
+
+/**
+ * ========================================================
+ * PHÂN TÍCH CHUYÊN SÂU 1 ITEM TRONG HÀNG ĐỢI (QUEUE WORKER)
+ * Áp dụng đúng 4 Bước phân tích & Định dạng báo cáo bắt buộc
+ * ========================================================
+ */
+async function analyzeSingleItemDeepDive(item) {
+  const client = getAiClient();
+  const contents = [];
+
+  // Tải ảnh đại diện (nếu có)
+  if (item.imageUrl && item.imageUrl.startsWith('http')) {
+    const imagePart = await urlToGenerativePart(item.imageUrl, `${item.brand} - ${item.title}`);
+    if (imagePart) contents.push(...imagePart);
+  }
+
+  const promptText = `
+${SYSTEM_INSTRUCTION}
+
+Dưới đây là dữ liệu thực tế về sản phẩm/quảng cáo của đối thủ:
+- Tên thương hiệu: ${item.brand || 'Đối thủ cạnh tranh'}
+- Nguồn dữ liệu: ${item.sourceType || item.source || 'Website'}
+- Tiêu đề sản phẩm/chiến dịch: ${item.title || 'N/A'}
+- Giá bán / Offer: ${item.price || item.offer || '[Không đủ dữ liệu xác thực]'}
+- Link xem gốc: ${item.productUrl || item.linkUrl || item.url || 'N/A'}
+- Đánh giá tín hiệu chiến thắng:
+  + Mức độ ưu tiên: [${item.priority || 'LOW'}]
+  + Điểm tín hiệu: ${item.winningScore || 0}/100
+  + Lý do phát hiện: ${item.signalReason || 'Chưa có ghi nhận đặc biệt'}
+- Dữ liệu chi tiết đính kèm:
+${JSON.stringify(item.raw_data || item, null, 2).slice(0, 1500)}
+
+BẠN BẮT BUỘC PHẢI XUẤT BÁO CÁO THEO ĐÚNG CẤU TRÚC SAU:
+
+==================================================
+📊 BÁO CÁO TÌNH BÁO ĐỐI THỦ: ${item.brand || 'ĐỐI THỦ'}
+📍 Nguồn kênh: [${item.sourceType || item.source || 'Website'}] | 🎯 Mức độ ưu tiên: [${item.priority || 'LOW'}]
+==================================================
+
+1. TỔNG QUAN TÍN HIỆU (SIGNAL SUMMARY)
+- Sản phẩm / Chiến dịch: ${item.title || 'Mã sản phẩm đối thủ'}
+- Giá bán & Offer ghi nhận: ${item.price || '[Không đủ dữ liệu xác thực]'}
+- Bằng chứng hiệu quả: ${item.signalReason || 'Dữ liệu cào định kỳ'}
+
+2. GIẢI PHẪU SẢN PHẨM & THỊ GIÁC (VISION ANALYSIS)
+- Cấu trúc Rập & Kiểu dáng: [Soi form, cổ pijama ve lật/cổ sen/cami, tay, độ che khuyết điểm]
+- Chất liệu & Màu sắc dự đoán: [Soi độ rủ, độ bắt sáng: lụa Latin, đũi tơ, modal...]
+- Chi tiết hoàn thiện đắt giá: [Viền lé piping tương phản, phối ren mi, cúc bọc vải...]
+- Concept & Góc chụp (Art Direction): [Bối cảnh giường ngủ drap trắng/luxury bath, ánh sáng warm cozy/bright airy, posing của mẫu]
+
+3. GIẢI MÃ PHỄU MARKETING CỦA ĐỐI THỦ
+- Hook chủ đạo: [Câu mở đầu hoặc visual hook 3s đầu]
+- Điểm chạm tâm lý (Pain-point / Desire): [Nỗi đau hoặc khao khát đối thủ đang đánh trúng]
+- Lỗ hổng của đối thủ (Weakness/Gap): [Điểm đối thủ làm chưa tới về ảnh, form dáng hoặc thông điệp]
+
+4. KẾ HOẠCH HÀNH ĐỘNG CHO THƯƠNG HIỆU CỦA BẠN (ACTIONABLE STRATEGY)
+- 💡 Gợi ý cải tiến Sản phẩm / Concept chụp: [1-2 hành động cụ thể để làm tốt hơn đối thủ]
+- 🎯 CORE INSIGHT CỐ ĐỊNH (Dùng để bán sâu 1 mã hàng): "[Phát biểu 1 câu Insight cốt lõi sắc bén]"
+- 🚀 MA TRẬN 4 GÓC TIẾP CẬN (Mở rộng nội dung từ Core Insight trên):
+  + [Angle 1 - Cảm xúc & Khí chất]: [Ý tưởng kịch bản/hình ảnh & câu Hook mẫu]
+  + [Angle 2 - Chất liệu & Trải nghiệm]: [Ý tưởng kịch bản/hình ảnh & câu Hook mẫu]
+  + [Angle 3 - Bối cảnh & Tình huống]: [Ý tưởng kịch bản/hình ảnh & câu Hook mẫu]
+  + [Angle 4 - Bằng chứng & Giải quyết rào cản]: [Ý tưởng kịch bản/hình ảnh & câu Hook mẫu]
+`;
+
+  contents.push({ text: promptText });
+
+  const modelName = config.gemini.model || 'gemini-3.8-flash';
+  const response = await client.models.generateContent({
+    model: modelName,
+    contents: contents,
+  });
+
+  const fullReport = response.text;
+
+  // Bóc tách Core Insight để lưu vào Vector Memory
+  const insightMatch = fullReport.match(/🎯 CORE INSIGHT CỐ ĐỊNH[^:]*:\s*["“]([^"”\n]+)["”]/i);
+  const coreInsight = insightMatch ? insightMatch[1].trim() : 'Nhu cầu tự thưởng bản thân và tìm kiếm giấc ngủ êm ái, thoáng mát';
+
+  return {
+    fullReport,
+    coreInsight,
+  };
+}
+
+/**
+ * ========================================================
+ * BÁO CÁO TỔNG THỂ HÀNG NGÀY (DAILY CONSOLIDATED REPORT)
+ * ========================================================
  */
 async function analyzeAndGenerateReport(webData, socialData, metaAdsData) {
   const client = getAiClient();
   const contents = [];
 
-  // 1. Lấy tối đa 4 ảnh sản phẩm mới từ Website để AI soi kiểu dáng/rập
-  const sampleProducts = (webData || [])
-    .filter(item => item.imageUrl && item.imageUrl.startsWith('http'))
-    .slice(0, 4);
-
+  // Lấy tối đa 3 ảnh mẫu từ website
+  const sampleProducts = (webData || []).filter(i => i.imageUrl && i.imageUrl.startsWith('http')).slice(0, 3);
   for (const prod of sampleProducts) {
-    const imageParts = await urlToGenerativePart(
-      prod.imageUrl,
-      `Sản phẩm Website: ${prod.brand} - ${prod.title} (${prod.price})`
-    );
-    if (imageParts) contents.push(...imageParts);
+    const p = await urlToGenerativePart(prod.imageUrl, `${prod.brand} - ${prod.title}`);
+    if (p) contents.push(...p);
   }
 
-  // 2. Lấy tối đa 4 ảnh Creative Quảng cáo từ Meta Ads để AI soi Concept & Bố cục
-  const sampleAds = (metaAdsData || [])
-    .filter(ad => ad.imageUrl && ad.imageUrl.startsWith('http'))
-    .slice(0, 4);
-
+  // Lấy tối đa 2 ảnh từ ads
+  const sampleAds = (metaAdsData || []).filter(a => a.imageUrl && a.imageUrl.startsWith('http')).slice(0, 2);
   for (const ad of sampleAds) {
-    const adParts = await urlToGenerativePart(
-      ad.imageUrl,
-      `Mẫu Quảng cáo Meta của hãng: ${ad.brand} (CTA: ${ad.ctaText})`
-    );
-    if (adParts) contents.push(...adParts);
+    const a = await urlToGenerativePart(ad.imageUrl, `Meta Ad: ${ad.brand}`);
+    if (a) contents.push(...a);
   }
 
-  // 3. Đưa toàn bộ dữ liệu Text + Yêu cầu phân tích chuyên sâu vào cuối mảng contents
   const promptText = `
-Bạn là Giám đốc Sáng tạo (Creative Director), Chuyên gia Thiết kế Rập Thời trang (Pattern Maker) & Giám đốc Tăng trưởng E-commerce (Head of Customer Retention & Growth) chuyên ngách Đồ ngủ / Loungewear / Sleepwear.
+${SYSTEM_INSTRUCTION}
 
-Dưới đây là các hình ảnh thực tế đính kèm (nếu có) và dữ liệu mới quét được hôm nay từ thị trường:
-- 1. Sản phẩm mới trên Website đối thủ (Shopify & Web Thuần):
-${JSON.stringify(webData, null, 2)}
+Dưới đây là các dữ liệu quét thị trường và đối thủ mới nhất:
+- Sản phẩm mới trên Website đối thủ:
+${JSON.stringify(webData, null, 2).slice(0, 2000)}
 
-- 2. Xu hướng mạng xã hội & Thị trường:
-${JSON.stringify(socialData, null, 2)}
+- Xu hướng Mạng xã hội:
+${JSON.stringify(socialData, null, 2).slice(0, 1500)}
 
-- 3. Chiến dịch Quảng cáo trả phí trên Meta (Facebook/Instagram Ads):
-${JSON.stringify(metaAdsData, null, 2)}
+- Chiến dịch Meta Ads:
+${JSON.stringify(metaAdsData, null, 2).slice(0, 2000)}
 
-Hãy lập báo cáo phân tích chiến lược chuyên sâu bằng tiếng Việt (rõ ràng, sắc bén, định dạng Markdown đẹp mắt) theo đúng 5 phần sau:
-
-1. ✂️ **Phân tích Thiết kế Rập, Kiểu dáng & Màu sắc**:
-   - Form dáng chủ đạo: Cổ áo (cổ sen, cổ pijama bẻ ve, cổ V, hai dây cami...), tay áo, độ dài ống quần, độ xòe/ôm.
-   - Chi tiết may rập đắt giá: Đường viền lé (piping), phối ren, nhún bèo, cúc bọc vải/vỏ sò, độ rũ và bóng bề mặt vải.
-   - Bảng màu xu hướng: Tông màu Pastel, Neutral/Earth-tone hay màu nổi bật đang chiếm sóng?
-
-2. 📸 **Giải phẫu Concept Chụp ảnh & Bố cục Creative Quảng cáo**:
-   - Setting & Bối cảnh: Phòng ngủ ngập nắng, góc ban công chill, studio phông tối giản hay lifestyle sinh hoạt đời thường?
-   - Posing & Cảm xúc: Người mẫu biểu cảm như thế nào để truyền tải thông điệp (sang trọng, thư giãn, ấm áp gia đình...)?
-   - Visual Hierarchy: Cách đặt text overlay, huy hiệu giảm giá/bán chạy, điểm nhìn chính của bức ảnh.
-
-3. 🧠 **Bóc tách Insight Khách hàng & Tâm lý Tiêu dùng Đồ ngủ**:
-   - Động lực mua hàng cốt lõi (Buying Triggers): Mua để tự thưởng bản thân (self-care/self-love); nâng cấp giấc ngủ mát mẻ không bí mồ hôi; đồ mặc nhà lịch sự kín đáo để tự tin mở cửa nhận hàng/tiếp khách; hoặc mua làm quà tặng tinh tế (Bridal, Valentine, sinh nhật).
-   - Nỗi đau & Rào cản tâm lý (Pain Points & Objections): Sợ vải pha nilon gây nóng lưng ngứa ngáy; sợ vải nhăn nhúm sau khi giặt máy; sợ cộm đường may khi nằm nghiêng; sợ áo hai dây bị hớ hênh khi không mặc nội y ở nhà.
-
-4. 🎁 **Chiến lược Thu hút & Kéo chân Khách hàng (Retention, Membership & Vouchers)**:
-   - Cơ chế thu hút & chuyển đổi khách mới: Welcome Voucher (VD: giảm 10-15% hoặc quà tặng nhỏ scrunchie lụa/túi giặt), Freeship threshold thông minh.
-   - Cơ chế kéo chân & gia tăng vòng đời khách hàng (Customer Lifetime Value - LTV):
-     * **Chương trình Thành viên (Membership / Pajama VIP Club)**: Cách phân tầng hạng thẻ (Silver, Gold, Diamond), đặc quyền mua sớm bộ sưu tập giới hạn (Early Access), quà tặng sinh nhật bất ngờ.
-     * **Ma trận Voucher & Kích thích mua lặp lại**: Voucher chu kỳ 30-45 ngày đổi bộ mới; Combo mua 2 giảm 15%, mua set tặng áo choàng; Voucher nhóm bạn thân/gia đình (Pajama Party).
-     * **Quà tặng đính kèm (Gift With Purchase - GWP)**: Nến thơm mini, bịt mắt ngủ lụa thêu tên riêng, xịt thơm gối tinh dầu oải hương.
-
-5. 🇻🇳 **Đề xuất Sản xuất & Triển khai Thực chiến tại Việt Nam**:
-   - Gợi ý cụ thể 1 mẫu thiết kế (form dáng, chất liệu lụa/tencel/cotton phù hợp khí hậu nóng ẩm VN, giá dự kiến).
-   - 1 kịch bản concept chụp ảnh Lookbook hoặc video ngắn TikTok/Reels mang tính chuyển đổi cao có thể triển khai ngay tuần này.
+Hãy xuất bản báo cáo chiến lược tổng hợp theo đúng MANDATORY OUTPUT FORMAT đã được quy định, bao gồm phân tích rập may chi tiết, phân tích nghệ thuật thị giác, chỉ ra lỗ hổng của đối thủ, và xây dựng MA TRẬN 4 GÓC TIẾP CẬN từ 1 CORE INSIGHT CỐ ĐỊNH để đội ngũ Marketing và Sản xuất triển khai ngay tuần này.
 `;
 
   contents.push({ text: promptText });
@@ -133,30 +229,35 @@ Hãy lập báo cáo phân tích chiến lược chuyên sâu bằng tiếng Vi�
 }
 
 /**
- * ==========================================
- * PHÂN TÍCH ẢNH ĐƠN (INTERACTIVE PHOTO VISION)
- * ==========================================
+ * ========================================================
+ * PHÂN TÍCH ẢNH LẺ THEO SLEEPWEAR TAXONOMY & MULTI-ANGLE
+ * ========================================================
  */
 async function analyzeCustomPhoto(fileUrl, customPrompt) {
   const client = getAiClient();
-  const imageParts = await urlToGenerativePart(fileUrl, 'Ảnh mẫu do người dùng gửi từ Telegram');
-
+  const imageParts = await urlToGenerativePart(fileUrl, 'Ảnh đồ ngủ do người dùng gửi');
   if (!imageParts) {
-    throw new Error('Không thể tải hoặc xử lý hình ảnh này để phân tích.');
+    throw new Error('Không thể tải hoặc xử lý ảnh gửi lên.');
   }
 
-  const prompt = customPrompt || `
-Hãy đóng vai trò Giám đốc Thiết kế & Chuyên gia Tăng trưởng Khách hàng (Customer Retention) chuyên ngách Đồ ngủ (Sleepwear/Loungewear). Hãy phân tích bức ảnh này theo 6 khía cạnh:
+  const prompt = `
+${SYSTEM_INSTRUCTION}
 
-1. ✂️ **Thiết kế rập & Kỹ thuật may**: Kiểu cổ, tay áo, độ rũ vải, các đường may viền/lé, chất liệu dự đoán.
-2. 🎨 **Bảng màu & Cảm giác thị giác**: Tông màu chủ đạo và cảm xúc mang lại.
-3. 🧠 **Insight & Chân dung Khách hàng**: Nhóm khách hàng nào mê mẩn mẫu này nhất (tuổi tác, nghề nghiệp, phong cách sống)? Động lực mua hàng và nỗi sợ lớn nhất của họ khi chọn mẫu này.
-4. 🎁 **Chiến lược Kéo chân & Voucher cho Mẫu này**:
-   - Gợi ý 1 kịch bản Combo / Upsell (VD: bán kèm áo choàng, dép bông, scrunchie lụa).
-   - Loại Voucher kích thích mua lần đầu và Voucher kéo họ quay lại mua lần 2.
-   - Quà tặng kèm (Gift with purchase) giúp tăng tỷ lệ chốt đơn và tỷ lệ khách giới thiệu bạn bè.
-5. 📸 **Concept chụp & Ánh sáng**: Góc chụp, bối cảnh, cách người mẫu tạo dáng để tôn dáng sản phẩm.
-6. 🇻🇳 **Đề xuất May & Bán tại Việt Nam**: Cách tùy biến mẫu này (về chất liệu, giá thành, cách phối đồ) để dễ bán chạy tại Việt Nam.
+Người dùng vừa gửi một bức ảnh mẫu đồ ngủ cần phân tích chuyên sâu.
+${customPrompt ? `Ghi chú đính kèm từ người dùng: "${customPrompt}"\n` : ''}
+
+Hãy bóc tách bức ảnh này theo đúng MANDATORY OUTPUT FORMAT:
+1. TỔNG QUAN TÍN HIỆU: Đánh giá chất lượng và tiềm năng thị trường của mẫu.
+2. GIẢI PHẪU SẢN PHẨM & THỊ GIÁC:
+   - Cấu trúc Rập: Kiểu dáng, cổ pijama ve lật/cổ sen/vuông/cami, form suông hay chiết eo, độ dài tay và quần.
+   - Bề mặt vải & Chất liệu: Lụa Latin, Satin, Đũi tơ hay Cotton Modal?
+   - Chi tiết đắt giá: Chạy viền lé piping, phối ren mi, cúc bọc vải, chun quần chống hằn.
+   - Concept & Art Direction: Bối cảnh, ánh sáng, cách tạo dáng người mẫu.
+3. GIẢI MÃ PHỄU MARKETING & LỖ HỔNG: Điểm chạm tâm lý và lỗ hổng cần khắc phục.
+4. KẾ HOẠCH HÀNH ĐỘNG:
+   - Gợi ý may rập và concept chụp tại Việt Nam.
+   - 1 CORE INSIGHT CỐ ĐỊNH.
+   - MA TRẬN 4 GÓC TIẾP CẬN (Angle 1: Cảm xúc & Khí chất, Angle 2: Chất liệu & Trải nghiệm, Angle 3: Bối cảnh & Tình huống, Angle 4: Bằng chứng & So sánh).
 `;
 
   const modelName = config.gemini.model || 'gemini-3.8-flash';
@@ -169,101 +270,14 @@ Hãy đóng vai trò Giám đốc Thiết kế & Chuyên gia Tăng trưởng Kh�
 }
 
 /**
- * ==========================================
- * KỸ NĂNG MỚI: TƯ VẤN CHIẾN LƯỢC KÉO CHÂN KHÁCH HÀNG (RETENTION & LOYALTY BLUEPRINT)
- * ==========================================
- */
-async function generateRetentionStrategy(topic) {
-  const client = getAiClient();
-  const prompt = `
-Bạn là Giám đốc Tăng trưởng Khách hàng & Loyalty Marketing (Head of Customer Retention & CRM) hàng đầu cho các thương hiệu thời trang đồ ngủ cao cấp.
-
-Chủ đề/Yêu cầu từ người dùng:
-"${topic}"
-
-Hãy lập Bản thiết kế Chiến lược Thu hút & Kéo chân Khách hàng (Customer Acquisition & Retention Blueprint) thực chiến, bao gồm:
-
-1. 🏆 **Hệ thống Hội viên (Membership / Pajama VIP Club)**:
-   - Thiết kế 3 hạng thẻ (VD: Silk Member -> Velvet VIP -> Diamond Queen) với điều kiện chi tiêu rõ ràng.
-   - Quyền lợi đắt giá: Mua sớm BST mới (Early Access), quà sinh nhật thiết kế riêng, quyền đổi size tận nhà miễn phí 1 năm.
-   - Cơ chế tích điểm & gamification (Tích điểm khi review có ảnh, tích điểm khi giới thiệu bạn bè).
-
-2. 🎟️ **Ma trận Voucher Kéo Chân Khách Hàng (Voucher Ladder)**:
-   - **Voucher Chào mừng (Welcome Voucher)**: Cách tạo cảm giác "hời" ngay lần đầu truy cập mà không làm mất giá thương hiệu.
-   - **Voucher Kích thích Mua lại (Repeat Purchase Voucher)**: Chu kỳ gửi sau 30-45 ngày (khi khách đã quen set cũ và muốn đổi mới).
-   - **Voucher Kích hoạt Khách ngủ đông (Win-back Voucher)**: Kịch bản kéo lại khách hàng sau 60-90 ngày không phát sinh đơn.
-   - **Chính sách Combo & Upsell**: Mua 2 giảm 15%, Mua set pijama tặng áo choàng ngủ hoặc voucher hoàn tiền.
-
-3. 🎀 **Nghệ thuật Quà tặng GWP & Trải nghiệm Đập Hộp (Unboxing Experience)**:
-   - Các món quà tặng kèm chi phí thấp nhưng giá trị cảm nhận cực cao (Nến thơm phòng ngủ mini, túi giặt đồ ngủ lụa, xịt thơm gối tinh dầu oải hương, scrunchie lụa thêu tên).
-   - Trải nghiệm đóng gói tạo sự "Wow": Hộp nắp nam châm thắt nơ, thiệp cảm ơn viết tay, xịt hương thơm đặc trưng của thương hiệu lên giấy lót.
-
-4. 📲 **Kịch bản Chăm sóc Khách hàng Tự động (Zalo ZNS / SMS / Email Automation Flow)**:
-   - Ngày 0 (Vừa nhận hàng): Hướng dẫn kiểm tra và thử size nhẹ nhàng.
-   - Ngày 3: Hướng dẫn bảo quản & cách giặt lụa/tencel đúng cách để bền đẹp như mới.
-   - Ngày 25-30: Thăm dò trải nghiệm giấc ngủ + Gửi tặng Voucher khách hàng thân thiết.
-`;
-
-  const modelName = config.gemini.model || 'gemini-3.8-flash';
-  const response = await client.models.generateContent({
-    model: modelName,
-    contents: [{ text: prompt }],
-  });
-
-  return response.text;
-}
-
-/**
- * ==========================================
- * KỸ NĂNG MỚI: BÓC TÁCH INSIGHT & CHÂN DUNG KHÁCH HÀNG (CUSTOMER PERSONA & BUYING TRIGGERS)
- * ==========================================
- */
-async function generateCustomerInsight(topic) {
-  const client = getAiClient();
-  const prompt = `
-Bạn là Chuyên gia Nghiên cứu Hành vi Người tiêu dùng (Consumer Behavior Researcher) & Chuyên gia Tâm lý Học Bán hàng ngách Thời trang Đồ ngủ / Loungewear / Sleepwear.
-
-Chủ đề/Yêu cầu từ người dùng:
-"${topic}"
-
-Hãy lập Báo cáo Phân tích Chân dung & Insight Khách hàng chuyên sâu:
-
-1. 🎯 **3 Chân dung Khách hàng Điển hình (Customer Personas)**:
-   - Độ tuổi, mức thu nhập, lối sống, thói quen sinh hoạt tại nhà.
-   - Bối cảnh họ mặc đồ ngủ (sau một ngày làm việc mệt mỏi, buổi sáng thong thả cuối tuần, khi tiếp bạn bè thân mật tại gia...).
-
-2. 💡 **Động cơ Mua hàng Cốt lõi (Hidden Buying Triggers)**:
-   - Nhu cầu cảm xúc sâu kín: Tìm kiếm sự nâng niu, tự thưởng cho bản thân (Self-love); cảm giác mình vẫn quyến rũ, chỉn chu dù chỉ ở trong phòng ngủ.
-   - Nhu cầu thực tế: Thoáng mát tối đa trong đêm hè oi bức, chất liệu êm ái xua tan mệt mỏi, form dáng kín đáo nhưng tôn dáng khi ra ngoài phòng khách.
-
-3. ⚠️ **Rào cản Mua hàng & Nỗi sợ (Fears & Objections)**:
-   - Những lý do khiến họ chần chừ bấm mua (Sợ vải nhăn, sợ cộm lưng, sợ giặt máy bị co, sợ hớ hênh khi không mặc bra, sợ giá cao nhưng chất liệu pha nylon).
-   - Chiến lược giải quyết triệt để từng nỗi sợ trong nội dung bài bán hàng và video.
-
-4. ✍️ **Bộ Thông Điệp Truyền Thông & Câu Hook Bắt Đúng Tim Đen**:
-   - 3 câu Hook mở đầu video/bài quảng cáo đánh trúng tâm lý tự thưởng bản thân.
-   - 3 góc tiếp cận giải quyết nỗi đau giấc ngủ và tính ứng dụng mặc nhà.
-`;
-
-  const modelName = config.gemini.model || 'gemini-3.8-flash';
-  const response = await client.models.generateContent({
-    model: modelName,
-    contents: [{ text: prompt }],
-  });
-
-  return response.text;
-}
-
-/**
- * ==========================================
- * KỸ NĂNG MỚI: SPY MARKETING CONTENT & PHÂN TÍCH Ý TƯỞNG QUẢNG CÁO ĐỐI THỦ
- * ==========================================
+ * ========================================================
+ * SPY MARKETING CONTENT & VIDEO TIKTOK / REELS / ADS
+ * ========================================================
  */
 async function spyAndAnalyzeMarketingContent(socialData, customInstructions = '') {
   const client = getAiClient();
   const contents = [];
 
-  // Nếu có ảnh đại diện/thumbnail của video hoặc bài đăng, tải về để Gemini Vision quan sát trực quan
   if (socialData.thumbnailUrl && socialData.thumbnailUrl.startsWith('http')) {
     const imageParts = await urlToGenerativePart(
       socialData.thumbnailUrl,
@@ -273,41 +287,24 @@ async function spyAndAnalyzeMarketingContent(socialData, customInstructions = ''
   }
 
   const prompt = `
-Bạn là Giám đốc Sáng tạo Viral Video (Viral Creative Director), Đạo diễn Kịch bản Video Ngắn (Short-form Scriptwriter) & Bậc thầy Phân tích Content Marketing ngành Thời trang (Sleepwear / Loungewear / Fashion).
+${SYSTEM_INSTRUCTION}
 
-Dưới đây là dữ liệu bài đăng / video quảng cáo từ đối thủ mà hệ thống vừa Spy được:
+Dữ liệu bài đăng/video đối thủ cần Spy:
 - Nền tảng: ${socialData.platform || 'Mạng xã hội'}
-- Tiêu đề / Headline: ${socialData.title || 'N/A'}
+- Tiêu đề: ${socialData.title || 'N/A'}
 - Tác giả / Kênh: ${socialData.author || 'N/A'}
-- Đường link gốc: ${socialData.url || 'N/A'}
-- Nội dung Text / Caption / Bóc tách:
-${socialData.text || socialData.rawInput || 'Không có text chi tiết'}
+- Link gốc: ${socialData.url || 'N/A'}
+- Nội dung Text / Caption: ${socialData.text || socialData.rawInput || 'Không có text'}
+${customInstructions ? `- Yêu cầu thêm: "${customInstructions}"\n` : ''}
 
-${customInstructions ? `\nYêu cầu bổ sung từ người dùng: "${customInstructions}"\n` : ''}
-
-Hãy "mổ xẻ phẫu thuật" nội dung này với độ chuẩn xác cao nhất theo đúng 5 phần sau bằng tiếng Việt (định dạng Markdown sắc bén, rõ ràng):
-
-1. 🎯 **Mổ xẻ "Ý Tưởng Lớn" (Big Idea & Viral Formula)**:
-   - Ý tưởng cốt lõi (Core Concept) là gì? Đối thủ đang bán "sản phẩm" hay bán "cảm xúc / phong cách sống"?
-   - Động cơ tâm lý kích hoạt người xem (Psychological Trigger): Cảm giác tò mò, sự thỏa mãn thị giác (Oddly Satisfying/ASMR), hiệu ứng bầy đàn (Bandwagon), hay tự thưởng bản thân (Self-care)?
-
-2. 🪝 **Giải Phẫu "3 Giây Đầu Tiên" (The Hook Anatomy)**:
-   - **Visual Hook**: Hình ảnh đập vào mắt người xem trong 3s đầu là gì (cảnh quay zoom cận chất vải, hành động đổ nước test chống thấm, biểu cảm ngạc nhiên của mẫu...)?
-   - **Text / Verbal Hook**: Câu chữ/câu nói đầu tiên nào khiến ngón tay người dùng dừng lướt (Pattern Interrupt)?
-   - **Audio Hook**: Tiếng sột soạt lụa (ASMR), âm thanh môi trường hay trend sound nào được sử dụng?
-
-3. 🎬 **Mạch Kể Chuyện & Kỹ Thuật Giữ Chân (Retention & Pacing)**:
-   - Cấu trúc kịch bản: Đối thủ triển khai theo công thức nào (VD: Problem - Agitate - Solution; Trước - Sau; Kể chuyện tâm sự POV...)?
-   - Nhịp điệu (Pacing): Nhịp cắt nhanh dồn dập hay chậm rãi thư thái để tạo cảm giác sang trọng?
-
-4. 🛒 **Nghệ thuật Lồng Ghép Sản Phẩm & Nút Kêu Gọi Hành Động (CTA)**:
-   - Sản phẩm xuất hiện ở giây thứ mấy? Xuất hiện như "vị cứu tinh giải quyết vấn đề" hay là giới thiệu lộ liễu?
-   - Kỹ thuật điều hướng mua hàng: Kêu gọi bình luận nhận voucher, dẫn link bio, hay ghim giỏ hàng?
-
-5. 🇻🇳 **Kịch Bản "Remix" Chuẩn Chỉnh Cho Shop Thời Trang Việt Nam**:
-   - **Bảng kịch bản phân cảnh chi tiết** (Từng giây: 0-3s, 3-10s, 10-25s, 25-35s) gồm: [Hình ảnh/Góc quay] - [Lời thoại/Voiceover tiếng Việt gần gũi] - [Chữ chạy trên màn hình].
-   - **Ghi chú Đạo diễn**: Hướng dẫn mẫu diễn xuất, góc đặt máy, ánh sáng phòng ngủ, chi tiết may rập đồ ngủ cần lia máy cận cảnh.
-   - **Gợi ý Caption & Bộ Hashtag TikTok/Reels**: Viết sẵn 1 caption có hook mạnh và 8 hashtag chuẩn ngách để lên xu hướng.
+Hãy giải phẫu kịch bản và xuất báo cáo chuẩn xác theo đúng cấu trúc:
+1. TỔNG QUAN TÍN HIỆU: Đánh giá độ lan tỏa và công thức triệu view.
+2. GIẢI PHẪU THỊ GIÁC & VIDEO ANATOMY: Visual Hook 3s đầu, góc quay, bối cảnh phòng ngủ/lifestyle, chuyển động khoe chất vải.
+3. GIẢI MÃ PHỄU MARKETING: Verbal hook, điểm chạm cảm xúc, lỗ hổng của đối thủ.
+4. KẾ HOẠCH HÀNH ĐỘNG:
+   - Kịch bản Remix từng giây (0-3s, 3-10s, 10-25s, 25-35s) chuẩn Việt Nam.
+   - 🎯 1 CORE INSIGHT CỐ ĐỊNH.
+   - 🚀 MA TRẬN 4 GÓC TIẾP CẬN (Cảm xúc, Chất liệu, Bối cảnh, Bằng chứng) để sản xuất chuỗi 10 video tiếp theo.
 `;
 
   contents.push({ text: prompt });
@@ -321,13 +318,99 @@ Hãy "mổ xẻ phẫu thuật" nội dung này với độ chuẩn xác cao nh�
   return response.text;
 }
 
+/**
+ * ========================================================
+ * NÂNG CẤP 5: TỔNG HỢP XU HƯỚNG TUẦN TỪ TRÍ NHỚ DÀI HẠN
+ * ========================================================
+ */
+async function summarizeWeeklyTrends(analyses) {
+  const client = getAiClient();
+  if (!analyses || analyses.length === 0) {
+    return 'Chưa có đủ dữ liệu lịch sử phân tích trong 7–14 ngày qua để tổng hợp bức tranh toàn cảnh.';
+  }
+
+  const prompt = `
+${SYSTEM_INSTRUCTION}
+
+Dưới đây là tóm tắt danh sách các sản phẩm và chiến dịch của các đối thủ lớn đã được ghi nhận trong 7-14 ngày qua:
+${JSON.stringify(analyses, null, 2).slice(0, 4000)}
+
+Dựa trên dữ liệu thực tế trên, hãy lập Báo Cáo Tổng Hợp Xu Hướng Toàn Cảnh (Macro Trend Report) ngành Đồ ngủ:
+1. 📈 **DỊCH CHUYỂN THIẾT KẾ & RẬP**: Các đối thủ đang chuyển hướng sang form dáng, kiểu cổ nào (VD: pijama ve lật sang cổ sen, set dài sang set đùi)?
+2. 🎨 **BẢNG MÀU & CHẤT LIỆU CHỦ ĐẠO**: Chất liệu và tông màu nào đang chiếm sóng nhiều nhất?
+3. 📸 **XU HƯỚNG CONCEPT CHỤP ẢNH & VISUAL**: Bối cảnh và phong cách chụp ảnh nào đang mang lại chuyển đổi cao nhất?
+4. 🧠 **CORE INSIGHTS & THÔNG ĐIỆP ĐANG THẮNG LỚN**: Thông điệp nào đang thu hút nhiều tương tác và ra đơn nhất?
+5. 🚀 **ĐỀ XUẤT HÀNH ĐỘNG TUẦN TỚI**: 3 việc cụ thể thương hiệu nhà nên triển khai ngay để đón đầu xu hướng.
+`;
+
+  const modelName = config.gemini.model || 'gemini-3.8-flash';
+  const response = await client.models.generateContent({
+    model: modelName,
+    contents: [{ text: prompt }],
+  });
+
+  return response.text;
+}
+
+/**
+ * TƯ VẤN RETENTION & LOYALTY
+ */
+async function generateRetentionStrategy(topic) {
+  const client = getAiClient();
+  const prompt = `
+${SYSTEM_INSTRUCTION}
+
+Chủ đề: "${topic}"
+Hãy lập Bản thiết kế Chiến lược Thu hút & Kéo chân Khách hàng (Customer Acquisition & Retention Blueprint):
+1. 🏆 Hệ thống Hội viên (Pajama VIP Club - 3 hạng thẻ).
+2. 🎟️ Ma trận Voucher Kéo Chân Khách Hàng (Voucher Ladder).
+3. 🎀 Nghệ thuật Quà tặng GWP & Trải nghiệm Đập Hộp (Unboxing Experience).
+4. 📲 Kịch bản Chăm sóc Khách hàng Tự động (Zalo ZNS / SMS Flow).
+5. 🎯 1 CORE INSIGHT CỐ ĐỊNH & MA TRẬN 4 GÓC TIẾP CẬN VOUCHER.
+`;
+
+  const modelName = config.gemini.model || 'gemini-3.8-flash';
+  const response = await client.models.generateContent({
+    model: modelName,
+    contents: [{ text: prompt }],
+  });
+
+  return response.text;
+}
+
+/**
+ * BÓC TÁCH CUSTOMER INSIGHT
+ */
+async function generateCustomerInsight(topic) {
+  const client = getAiClient();
+  const prompt = `
+${SYSTEM_INSTRUCTION}
+
+Chủ đề: "${topic}"
+Hãy lập Báo cáo Phân tích Chân dung & Insight Khách hàng chuyên sâu:
+1. 🎯 3 Chân dung Khách hàng Điển hình (Customer Personas).
+2. 💡 Động cơ Mua hàng Cốt lõi (Hidden Buying Triggers).
+3. ⚠️ Rào cản Mua hàng & Nỗi sợ (Fears & Objections).
+4. 🎯 1 CORE INSIGHT CỐ ĐỊNH & MA TRẬN 4 GÓC TIẾP CẬN NỘI DUNG.
+`;
+
+  const modelName = config.gemini.model || 'gemini-3.8-flash';
+  const response = await client.models.generateContent({
+    model: modelName,
+    contents: [{ text: prompt }],
+  });
+
+  return response.text;
+}
+
 module.exports = {
   getAiClient,
-  urlToGenerativePart,
+  getEmbedding,
+  analyzeSingleItemDeepDive,
   analyzeAndGenerateReport,
   analyzeCustomPhoto,
+  spyAndAnalyzeMarketingContent,
+  summarizeWeeklyTrends,
   generateRetentionStrategy,
   generateCustomerInsight,
-  spyAndAnalyzeMarketingContent,
 };
-
